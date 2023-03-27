@@ -1,6 +1,34 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+[tool.poetry]
+name = "azure-keyvault-cli"
+version = "0.1.3"
+description = "This is a CLI to show and check secrets in an Azure KeyVault"
+authors = ["mkah91 <marius_knepper@web.de>"]
+repository = "https://github.com/mkah91/azure-keyvault-cli"
+keywords = ["azure", "keyvault", "cli", "secrets"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "cli"}]
+exclude = ["tests", ".github"]
+
+[tool.poetry.scripts]
+azkv = 'cli.main:azkv'
+
+[tool.poetry.dependencies]
+python = "^3.9" 
+azure-identity = "^1.12.0"
+inquirerpy = "^0.3.4"
+azure-keyvault-secrets = "^4.7.0"
+pyperclip = "^1.8.2"
+toml = "^0.10.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.2"
+black = "^23.1.0"
+mypy = "^1.1.1"
 
 [tool.black]
 line-length = 119
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
