@@ -14,10 +14,7 @@ def azkv(ctx):
             filter=lambda x: x.strip('"').strip("'").strip(),
         ).execute()
     try:
-        if client.settings.auth_record is None or not client.settings.is_valid():
-            client.login()
-        else:
-            client.reuse_login()
+        client.login()
     except ClientAuthenticationError as e:
         click.secho("Authentication error", fg="bright_red")
         click.secho(f"Error was:\n{e}", fg="red")

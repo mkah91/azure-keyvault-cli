@@ -13,7 +13,7 @@ def read(*paths, **kwargs):
 
 setup(
     name="Azure Keyvault CLI",
-    version="0.1.0",
+    version="0.1.1",
     url="https://github.com/mkah91/azure-keyvault-cli",
     author="mkah91",
     author_email="marius_knepper@web.de",

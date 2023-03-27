@@ -1,45 +1,53 @@
-from datetime import datetime, timezone
+import sys
 
 from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 import click
 from InquirerPy import inquirer
-import pyperclip
+import pyperclip # type: ignore
 
-def show_list(client):
-    secret_names = map(lambda s: s.name, get_secret_list(client))
-    choice = inquirer.fuzzy(
-        message="Select a secret to show:",
-        choices=secret_names,
-        default=None,
-    ).execute()
-    if choice:
-        show_secret(client, choice)
+from cli.clients.keyvault_client import KeyVaultClient, ClientNotInitializedError
 
-def get_secret_list(client): 
+def show_list(kv: KeyVaultClient):
     try:
-        return list(client.list_properties_of_secrets())
+        secrets = kv.get_secrets()
+        secret_names = [s.name for s in secrets]
+        choice = inquirer.fuzzy(
+            message="Select a secret to show:",
+            choices=secret_names,
+            default=None,
+        ).execute()
+        if choice:
+            show_secret(kv, choice)
     except HttpResponseError as e:
         click.secho("Error listing the secrets!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
+        sys.exit(1)
+    except ClientNotInitializedError:
+        click.secho("Client not initialized!", fg="bright_red", err=True)
+        sys.exit(1)
+    
 
-def show_secret(client, name):
-    secret = get_secret(client, name)
-    if secret:
-        click.secho(f"Secret: {secret.name}", fg="bright_black")
-        if secret.properties.expires_on:
-            expires_color = "bright_black"
-            if secret.properties.expires_on < datetime.now(timezone.utc):
-                expires_color = "red"
-            click.secho(f"Expires: {secret.properties.expires_on}", fg=expires_color)
-        click.echo()
-        click.secho(secret.value, fg="bright_black")
-        pyperclip.copy(secret.value)
-
-def get_secret(client, name):
+def show_secret(kv: KeyVaultClient, name: str):
     try:
-        return client.get_secret(name)
+        secret = kv.get_secret(name)
+        if secret.expires_on:
+            expires_color = "bright_white"
+            if secret.is_expired():
+                expires_color = "red"
+            elif secret.is_soon_expired():
+                expires_color = "yellow"
+            click.secho(f"Expires: {secret.expires_on}", fg=expires_color)
+        click.echo()
+        click.secho(secret.value, fg="bright_white")
+        click.echo()
+        pyperclip.copy(secret.value)
     except ResourceNotFoundError:
         click.secho("Secret does not exist!", fg="bright_red", err=True)
+        sys.exit(1)
     except HttpResponseError as e:
         click.secho("Error getting the secret!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
+        sys.exit(1)
+    except ClientNotInitializedError:
+        click.secho("Client not initialized!", fg="bright_red", err=True)
+        sys.exit(1)
