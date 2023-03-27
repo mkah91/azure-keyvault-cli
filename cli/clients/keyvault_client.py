@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 from azure.identity import (
     AuthenticationRecord,
@@ -15,7 +16,7 @@ class ClientNotInitializedError(Exception):
 
 
 class Secret:
-    def __init__(self, properties: SecretProperties, value: str | None = None):
+    def __init__(self, properties: SecretProperties, value: Optional[str] = None):
         self.name = properties.name
         self.expires_on = properties.expires_on
         self.value = None
@@ -59,7 +60,9 @@ class KeyVaultClientSettings:
             settings_dict = json.load(f)
         self.vault_url = settings_dict["vault_url"]
         self.auth_record = settings_dict["auth_record"]
-        self.last_login_time = datetime.fromisoformat(settings_dict["last_login_time"]) if settings_dict["last_login_time"] else None
+        self.last_login_time = (
+            datetime.fromisoformat(settings_dict["last_login_time"]) if settings_dict["last_login_time"] else None
+        )
 
     def is_valid(self) -> bool:
         return self._exists() and self._mtime() > (datetime.now() - timedelta(hours=self.__valid_settings_hours))
@@ -73,7 +76,7 @@ class KeyVaultClientSettings:
 
 class KeyVaultClient:
     def __init__(self, settings: KeyVaultClientSettings):
-        self.client: SecretClient | None = None
+        self.client: Optional[SecretClient] = None
         self.settings = settings
         self.__valid_login_hours = 6
 
