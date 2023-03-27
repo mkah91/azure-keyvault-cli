@@ -4,12 +4,13 @@
 
 ### Install with pip
 
-If you want to have it globally available, run in your global python environment:
+To install the latest stable version, run:
 
 ```
 pip3 install --index-url https://test.pypi.org/simple/ azure-keyvault-cli
 ```
 
+If you want to have it globally available, make sure to run it in your global python environment.
 
 ## Contributing
 
