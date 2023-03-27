@@ -30,20 +30,21 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python - -y
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-    - name: Build
-      run: poetry build
     - name: Bump Version
       id: bump-version
       run: |
         poetry version ${{ github.event.inputs.version_bump }}
         echo "version=$(poetry version --short)" >> $GITHUB_OUTPUT
-    - name: Commit Version Bump
+    # - name: Commit Version Bump
+    #   run: |
+    #     git config --local user.email "mkah91@users.noreply.github.com"
+    #     git config --local user.name "mkah91"
+    #     git add pyproject.toml
+    #     git commit -m "Bump version: ${{ steps.bump-version.outputs.version }}"
+    #     git push
+    - name: Publish
       run: |
-        git config --local user.email "mkah91@users.noreply.github.com"
-        git config --local user.name "mkah91"
-        git add pyproject.toml
-        git commit -m "Bump version: ${{ steps.bump-version.outputs.version }}"
-        git push
+        poetry publish -r "test-pypi" -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --build
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
@@ -52,8 +53,3 @@ jobs:
         draft: false
         tag: ${{ steps.bump-version.outputs.version }}
         generateReleaseNotes: true   
-    - name: Publish
-      run: |
-        ls -la
-        ls -la dist
-        poetry publish -r "test-pypi" -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }}
