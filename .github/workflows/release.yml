@@ -1,0 +1,49 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Bump rule to increase the version'
+        type: choice
+        required: true
+        default: 'patch'
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python - -y
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Build azkv
+      run: poetry build
+    - name: Bump Version
+      id: bump-version
+      run: |
+        poetry version ${{ github.event.inputs.version_bump }}
+        echo "version=$(poetry version --short) >> "$GITHUB_OUTPUT"
+    - name: Generate Changelog
+      run: .github/release_message.sh > release_message.md
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "dist/*"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        draft: false
+        bodyFile: release_message.md
+        tag: ${{ steps.bump-version.outputs.version }}    
+    - name: Publish
+      run: poetry publish -r "test-pypi" -u __token__ -p ${{ secrets.TEST_PYPI_TOKEN }}
