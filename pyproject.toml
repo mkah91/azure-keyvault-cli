@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "azure-keyvault-cli"
-version = "0.1.4"
+version = "0.1.5"
 description = "This is a CLI to show and check secrets in an Azure KeyVault"
 authors = ["mkah91 <marius_knepper@web.de>"]
 repository = "https://github.com/mkah91/azure-keyvault-cli"
