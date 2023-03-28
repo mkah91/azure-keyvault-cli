@@ -20,6 +20,7 @@ def azkv(ctx):
         click.secho("Authentication error", fg="bright_red")
         click.secho(f"Error was:\n{e}", fg="red")
 
+
 def is_valid_url(url):
     try:
         url = url.strip('"').strip("'").strip()
