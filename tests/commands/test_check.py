@@ -1,6 +1,6 @@
 import pytest
 
-from cli.clients.keyvault_client import KeyVaultClient, ClientNotInitializedError, SecretRequestError
+from cli.client.keyvault_client import KeyVaultClient, ClientNotInitializedError, SecretRequestError
 from cli.commands.check import check
 
 
