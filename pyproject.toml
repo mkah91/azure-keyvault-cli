@@ -9,6 +9,8 @@ license = "MIT"
 readme = "README.md"
 packages = [{include = "cli"}]
 exclude = ["tests", ".github"]
+include = ["README.md", "pyproject.toml", "LICENSE.txt"]
+
 
 [tool.poetry.scripts]
 azkv = 'cli.main:azkv'
