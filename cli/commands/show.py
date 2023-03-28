@@ -1,11 +1,10 @@
 import sys
 
-from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 import click
 from InquirerPy import inquirer
 import pyperclip  # type: ignore
 
-from cli.clients.keyvault_client import (
+from cli.client.keyvault_client import (
     KeyVaultClient,
     ClientNotInitializedError,
     SecretRequestError,

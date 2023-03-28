@@ -3,7 +3,7 @@ from pathlib import Path
 import toml # type: ignore
 
 from cli.azkv import azkv as azkv_cmd
-from cli.clients.keyvault_client import KeyVaultClient, KeyVaultClientSettings
+from cli.client.keyvault_client import KeyVaultClient, KeyVaultClientSettings
 from cli.commands.check import check as check_cmd
 from cli.commands.show import show_list, show_secret
 
