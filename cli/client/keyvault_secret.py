@@ -2,9 +2,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+
 @dataclass
 class Secret:
-    name: str
+    name: Optional[str]
     expires_on: Optional[datetime]
     value: Optional[str] = field(default=None)
     _days_before_expiration: int = field(default=15, init=False)
