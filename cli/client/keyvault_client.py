@@ -77,7 +77,7 @@ class KeyVaultClient:
             raise SecretNotFoundError(e)
         except HttpResponseError as e:
             raise SecretRequestError(e)
-        return Secret(s.properties, s.value)
+        return Secret(s.properties.name, s.properties.expires_on, s.value)
 
     def get_secrets(self) -> list[Secret]:
         if not self.client:
@@ -86,4 +86,4 @@ class KeyVaultClient:
             secrets = self.client.list_properties_of_secrets()
         except HttpResponseError as e:
             raise SecretRequestError(e)
-        return [Secret(s) for s in secrets]
+        return [Secret(s.name, s.expires_on) for s in secrets]
