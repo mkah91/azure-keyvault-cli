@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
-from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from azure.identity import (
@@ -34,7 +34,7 @@ class Secret:
             return False
         return self.expires_on < (datetime.now(timezone.utc) + timedelta(days=self.__days_before_expiration))
 
-
+    
 class KeyVaultClientSettings:
     def __init__(self):
         self.vault_url = None
