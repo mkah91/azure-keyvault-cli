@@ -7,7 +7,7 @@ from azure.identity import (
     InteractiveBrowserCredential,
     TokenCachePersistenceOptions,
 )
-from azure.keyvault.secrets import SecretClient
+from azure.keyvault.secrets import SecretClient, SecretProperties
 
 from cli.client.keyvault_client_settings import KeyVaultClientSettings
 from cli.client.keyvault_secret import Secret
@@ -29,9 +29,11 @@ class KeyVaultClient:
     def __init__(self, settings: KeyVaultClientSettings):
         self.client: Optional[SecretClient] = None
         self.settings = settings
-        self.__valid_login_hours = 6
+        self._valid_login_hours = 6
 
     def _set_client(self, record: AuthenticationRecord):
+        if not self.settings.vault_url:
+            raise ClientNotInitializedError("Vault URL not set")
         credential = InteractiveBrowserCredential(
             cache_persistence_options=TokenCachePersistenceOptions(),
             authentication_record=record,
@@ -43,7 +45,7 @@ class KeyVaultClient:
             return True
         if not self.settings.auth_record or not self.settings.last_login_time:
             return True
-        if self.settings.last_login_time < (datetime.now(timezone.utc) - timedelta(hours=self.__valid_login_hours)):
+        if self.settings.last_login_time < (datetime.now(timezone.utc) - timedelta(hours=self._valid_login_hours)):
             return True
         return False
 
@@ -57,6 +59,8 @@ class KeyVaultClient:
         return record
 
     def _reuse_auth(self) -> AuthenticationRecord:
+        if not self.settings.auth_record:
+            raise ClientNotInitializedError("Auth record not set")
         self.settings.load()
         record = AuthenticationRecord.deserialize(self.settings.auth_record)
         return record
@@ -86,4 +90,5 @@ class KeyVaultClient:
             secrets = self.client.list_properties_of_secrets()
         except HttpResponseError as e:
             raise SecretRequestError(e)
+
         return [Secret(s.name, s.expires_on) for s in secrets]
