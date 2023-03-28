@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
+from azure.core.exceptions import HttpResponseError, ResourceNotFoundError
 from azure.identity import (
     AuthenticationRecord,
     InteractiveBrowserCredential,
@@ -12,6 +13,14 @@ from azure.keyvault.secrets import SecretClient, SecretProperties
 
 
 class ClientNotInitializedError(Exception):
+    pass
+
+
+class SecretRequestError(Exception):
+    pass
+
+
+class SecretNotFoundError(Exception):
     pass
 
 
@@ -30,11 +39,11 @@ class Secret:
         return self.expires_on < datetime.now(timezone.utc)
 
     def is_soon_expired(self) -> bool:
-        if not self.expires_on:
+        if not self.expires_on or (self.expires_on < datetime.now(timezone.utc)):
             return False
         return self.expires_on < (datetime.now(timezone.utc) + timedelta(days=self.__days_before_expiration))
 
-    
+
 class KeyVaultClientSettings:
     def __init__(self):
         self.vault_url = None
@@ -120,11 +129,19 @@ class KeyVaultClient:
     def get_secret(self, name: str) -> Secret:
         if not self.client:
             raise ClientNotInitializedError("Client not initialized")
-        s = self.client.get_secret(name)
+        try:
+            s = self.client.get_secret(name)
+        except ResourceNotFoundError as e:
+            raise SecretNotFoundError(e)
+        except HttpResponseError as e:
+            raise SecretRequestError(e)
         return Secret(s.properties, s.value)
 
     def get_secrets(self) -> list[Secret]:
         if not self.client:
             raise ClientNotInitializedError("Client not initialized")
-        secrets = self.client.list_properties_of_secrets()
+        try:
+            secrets = self.client.list_properties_of_secrets()
+        except HttpResponseError as e:
+            raise SecretRequestError(e)
         return [Secret(s) for s in secrets]
