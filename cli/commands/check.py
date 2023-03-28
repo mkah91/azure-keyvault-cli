@@ -1,8 +1,7 @@
 import click
 import sys
 
-from azure.core.exceptions import HttpResponseError
-from cli.clients.keyvault_client import KeyVaultClient, ClientNotInitializedError
+from cli.clients.keyvault_client import KeyVaultClient, ClientNotInitializedError, SecretRequestError
 
 
 def check(kv: KeyVaultClient):
@@ -20,7 +19,7 @@ def check(kv: KeyVaultClient):
                 click.secho(f"  {s.name}", fg="bright_yellow")
         if len(expired_secrets) == 0 and len(soon_expired_secrets) == 0:
             click.secho("No expired secrets found!", fg="bright_green")
-    except HttpResponseError as e:
+    except SecretRequestError as e:
         click.secho("Error listing the secrets!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
         sys.exit(1)
