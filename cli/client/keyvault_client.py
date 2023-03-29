@@ -7,7 +7,7 @@ from azure.identity import (
     InteractiveBrowserCredential,
     TokenCachePersistenceOptions,
 )
-from azure.keyvault.secrets import SecretClient, SecretProperties
+from azure.keyvault.secrets import SecretClient
 
 from cli.client.keyvault_client_settings import KeyVaultClientSettings
 from cli.client.keyvault_secret import Secret
@@ -45,12 +45,16 @@ class KeyVaultClient:
             return True
         if not self.settings.auth_record or not self.settings.last_login_time:
             return True
-        if self.settings.last_login_time < (datetime.now(timezone.utc) - timedelta(hours=self._valid_login_hours)):
+        if self.settings.last_login_time < (
+            datetime.now(timezone.utc) - timedelta(hours=self._valid_login_hours)
+        ):
             return True
         return False
 
     def _auth(self) -> AuthenticationRecord:
-        init_credential = InteractiveBrowserCredential(cache_persistence_options=TokenCachePersistenceOptions())
+        init_credential = InteractiveBrowserCredential(
+            cache_persistence_options=TokenCachePersistenceOptions()
+        )
         record = init_credential.authenticate()
         record_json = record.serialize()
         self.settings.auth_record = record_json
