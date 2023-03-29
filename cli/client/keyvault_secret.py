@@ -18,4 +18,6 @@ class Secret:
     def is_soon_expired(self) -> bool:
         if not self.expires_on or (self.expires_on < datetime.now(timezone.utc)):
             return False
-        return self.expires_on < (datetime.now(timezone.utc) + timedelta(days=self._days_before_expiration))
+        return self.expires_on < (
+            datetime.now(timezone.utc) + timedelta(days=self._days_before_expiration)
+        )

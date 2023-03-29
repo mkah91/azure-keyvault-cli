@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
@@ -41,11 +41,15 @@ class KeyVaultClientSettings(KeyVaultClientSettingsData):
         self.vault_url = settings_dict["vault_url"]
         self.auth_record = settings_dict["auth_record"]
         self.last_login_time = (
-            datetime.fromisoformat(settings_dict["last_login_time"]) if settings_dict["last_login_time"] else None
+            datetime.fromisoformat(settings_dict["last_login_time"])
+            if settings_dict["last_login_time"]
+            else None
         )
 
     def is_valid(self) -> bool:
-        return self._exists() and self._mtime() > (datetime.now() - timedelta(hours=self._valid_settings_hours))
+        return self._exists() and self._mtime() > (
+            datetime.now() - timedelta(hours=self._valid_settings_hours)
+        )
 
     def _mtime(self) -> datetime:
         return datetime.fromtimestamp(self._location.stat().st_mtime)
