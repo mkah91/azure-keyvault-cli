@@ -4,9 +4,12 @@ import click
 import pyperclip  # type: ignore
 from InquirerPy import inquirer
 
-from cli.client.keyvault_client import (ClientNotInitializedError,
-                                        KeyVaultClient, SecretNotFoundError,
-                                        SecretRequestError)
+from cli.client.keyvault_client import (
+    ClientNotInitializedError,
+    KeyVaultClient,
+    SecretNotFoundError,
+    SecretRequestError,
+)
 
 
 def show_list(kv: KeyVaultClient):
