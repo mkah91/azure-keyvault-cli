@@ -1,7 +1,10 @@
 import pytest
 
-from cli.client.keyvault_client import (ClientNotInitializedError,
-                                        KeyVaultClient, SecretRequestError)
+from cli.client.keyvault_client import (
+    ClientNotInitializedError,
+    KeyVaultClient,
+    SecretRequestError,
+)
 from cli.commands.check import check
 
 
@@ -18,9 +21,7 @@ def kv_client_mock(mocker):
         (False, True, "Soon to expire secrets:\n  secret1\n  secret2"),
     ],
 )
-def test_check_with_secrets(
-    mocker, kv_client_mock, capsys, expired, soon_expired, expected
-):
+def test_check_with_secrets(mocker, kv_client_mock, capsys, expired, soon_expired, expected):
     secret1 = mocker.MagicMock(is_expired=lambda: expired, is_soon_expired=lambda: soon_expired)
     secret1.name = "secret1"
     secret2 = mocker.MagicMock(is_expired=lambda: expired, is_soon_expired=lambda: soon_expired)
