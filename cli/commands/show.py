@@ -45,8 +45,11 @@ def show_secret(kv: KeyVaultClient, name: str):
         click.echo()
         click.secho(secret.value, fg="bright_white")
         click.echo()
-        pyperclip.copy(secret.value)
-        click.secho("Secret copied to clipboard!", fg="bright_blue")
+        try:
+            pyperclip.copy(secret.value)
+            click.secho("Secret copied to clipboard!", fg="bright_blue")
+        except pyperclip.PyperclipException:
+            pass
     except SecretNotFoundError:
         click.secho("Secret does not exist!", fg="bright_red", err=True)
         sys.exit(1)
