@@ -20,9 +20,7 @@ def show_list(kv: KeyVaultClient):
             click.secho("No secrets found.", fg="bright_white")
             sys.exit(0)
         choice = inquirer.fuzzy(
-            message="Select a secret to show:",
-            choices=secret_names,
-            default=None,
+            message="Select a secret to show:", choices=secret_names, default=None
         ).execute()
         if choice:
             show_secret(kv, choice)
@@ -50,7 +48,7 @@ def show_secret(kv: KeyVaultClient, name: str):
         click.echo()
         try:
             pyperclip.copy(secret.value)
-            click.secho("Secret copied to clipboard!", fg="bright_blue")
+            click.secho("Secret copied to clipboard!", fg=(97, 175, 239))
         except pyperclip.PyperclipException:
             pass
     except SecretNotFoundError:
