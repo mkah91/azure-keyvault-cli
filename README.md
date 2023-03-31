@@ -9,7 +9,7 @@ This is a CLI tool to interact with an Azure KeyVault. You can use it to easily 
 To install the latest stable version, run:
 
 ```sh
-pip3 install --index-url https://test.pypi.org/simple/ azure-keyvault-cli
+pip3 install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple azure-keyvault-cli
 ```
 
 If you want to have it globally available, make sure to run it in your global python environment.
