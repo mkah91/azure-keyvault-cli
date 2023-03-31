@@ -2,6 +2,8 @@ name: End-to-End Test
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   e2e-test:
