@@ -1,4 +1,6 @@
-# Azure Keyvault CLI
+# Azure KeyVault CLI
+
+This is a CLI tool to interact with an Azure KeyVault. You can use it to easily list and show secrets. Additionally, you can use it to check the expiration date of all the secrets in your KeyVault.
 
 ## Installation
 
@@ -11,6 +13,12 @@ pip3 install --index-url https://test.pypi.org/simple/ azure-keyvault-cli
 ```
 
 If you want to have it globally available, make sure to run it in your global python environment.
+
+## Usage
+
+```sh
+azkv --help
+```
 
 ## Contributing
 
