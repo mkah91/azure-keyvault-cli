@@ -35,7 +35,7 @@ class KeyVaultClient:
         if not self.settings.vault_url:
             raise ClientNotInitializedError("Vault URL not set")
         credential = InteractiveBrowserCredential(
-            cache_persistence_options=TokenCachePersistenceOptions(),
+            cache_persistence_options=TokenCachePersistenceOptions(allow_unencrypted_storage=True),
             authentication_record=record,
         )
         self.client = SecretClient(vault_url=self.settings.vault_url, credential=credential)

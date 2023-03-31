@@ -1,5 +1,6 @@
-import click
 from pathlib import Path
+
+import click
 import toml  # type: ignore
 
 from cli.azkv import azkv as azkv_cmd
@@ -7,12 +8,11 @@ from cli.client.keyvault_client import KeyVaultClient, KeyVaultClientSettings
 from cli.commands.check import check as check_cmd
 from cli.commands.show import show_list, show_secret
 
-
 pyproject_file = Path(__file__).parent.parent / "pyproject.toml"
 version = toml.load(pyproject_file)["tool"]["poetry"]["version"]
 
 
-@click.group()
+@click.group(invoke_without_command=True, no_args_is_help=True)
 @click.version_option(version)
 @click.pass_context
 @click.option("--reset-vault-url", is_flag=True, default=False, help="Reset Vault URL")
