@@ -1,27 +1,23 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug azkv show",
-            "type": "python",
-            "request": "launch",
-            "program": "cli/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "show",
-            ]
-        },
-        {
-            "name": "Debug azkv check",
-            "type": "python",
-            "request": "launch",
-            "program": "cli/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "check",
-            ]
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug azkv show",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["show"]
+    },
+    {
+      "name": "Debug azkv check",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["check"]
+    }
+  ]
 }
