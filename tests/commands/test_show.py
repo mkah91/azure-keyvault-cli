@@ -90,7 +90,7 @@ def test_show_secret(mocker, kv_client_mock, expired, soon_expired, expected):
         [
             mocker.call("Expires: someday", fg=expected),
             mocker.call("my_secret", fg="bright_white"),
-            mocker.call("Secret copied to clipboard!", fg="bright_blue"),
+            mocker.call("Secret copied to clipboard!", fg=(97, 175, 239)),
         ]
     )
 
