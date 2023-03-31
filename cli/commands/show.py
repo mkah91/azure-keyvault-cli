@@ -12,18 +12,21 @@ from cli.client.keyvault_client import (
 )
 
 
-def show_list(kv: KeyVaultClient):
+def show_list(kv: KeyVaultClient, name: str = None):
     try:
         secrets = kv.get_secrets()
         secret_names = [s.name for s in secrets]
         if not secret_names:
             click.secho("No secrets found.", fg="bright_white")
             sys.exit(0)
-        choice = inquirer.fuzzy(
-            message="Select a secret to show:", choices=secret_names, default=None
-        ).execute()
-        if choice:
-            show_secret(kv, choice)
+        if name in secret_names:
+            show_secret(kv, name)
+        else:
+            choice = inquirer.fuzzy(
+                message="Select a secret to show:", choices=secret_names, default=name
+            ).execute()
+            if choice:
+                show_secret(kv, choice)
     except SecretRequestError as e:
         click.secho("Error listing the secrets!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
