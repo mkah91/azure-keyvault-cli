@@ -44,6 +44,20 @@ def test_show_list_with_no_secrets(mocker, kv_client_mock, capsys):
     assert captured.out.strip() == "No secrets found."
     assert captured.err == ""
 
+def test_show_list_with_matching_secret(mocker, kv_client_mock):
+    secret_mock_1 = mocker.MagicMock()
+    secret_mock_1.name = "secret1"
+    secret_mock_2 = mocker.MagicMock()
+    secret_mock_2.name = "secret2"
+    kv_client_mock.get_secrets.return_value = [secret_mock_1, secret_mock_2]
+    inquirer_mock = mocker.patch("InquirerPy.inquirer.fuzzy")
+    show_secret_mock = mocker.patch("cli.commands.show.show_secret")
+
+    show_list(kv_client_mock, "secret1")
+
+    inquirer_mock.assert_not_called()
+    show_secret_mock.assert_called_with(kv_client_mock, "secret1")
+
 
 @pytest.mark.parametrize(
     "error,expected",

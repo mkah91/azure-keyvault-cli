@@ -6,7 +6,7 @@ import toml  # type: ignore
 from cli.azkv import azkv as azkv_cmd
 from cli.client.keyvault_client import KeyVaultClient, KeyVaultClientSettings
 from cli.commands.check import check as check_cmd
-from cli.commands.show import show_list, show_secret
+from cli.commands.show import show_list
 
 pyproject_file = Path(__file__).parent.parent / "pyproject.toml"
 version = toml.load(pyproject_file)["tool"]["poetry"]["version"]
@@ -42,14 +42,11 @@ def azkv(ctx, reset_vault_url, reset_login, reset):
 
 
 @azkv.command()
-@click.option("-n", "--name", help="The name of the secret")
+@click.argument("name", required=False)
 @click.pass_obj
 def show(client, name):
     try:
-        if name is not None:
-            show_secret(client, name)
-        else:
-            show_list(client)
+        show_list(client, name)
     except Exception as e:
         click.secho("Unexpected error", fg="bright_red")
         click.secho(f"Error was:\n{e}", fg="red")
