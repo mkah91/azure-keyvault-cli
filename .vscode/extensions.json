@@ -1,6 +1,7 @@
 {
-	"recommendations": [
-		"bungcip.better-toml",
-        	"ms-python.python"
-	]
+  "recommendations": [
+    "bungcip.better-toml",
+    "ms-python.python",
+    "charliermarsh.ruff"
+  ]
 }
