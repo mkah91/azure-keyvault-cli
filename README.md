@@ -1,3 +1,5 @@
+[![End-to-End Test](https://github.com/mkah91/azure-keyvault-cli/actions/workflows/e2e-test.yaml/badge.svg)](https://github.com/mkah91/azure-keyvault-cli/actions/workflows/e2e-test.yaml)
+
 # Azure KeyVault CLI
 
 This is a CLI tool to interact with an Azure KeyVault. You can use it to easily list and show secrets. Additionally, you can use it to check the expiration date of all the secrets in your KeyVault.
