@@ -19,6 +19,7 @@ jobs:
       contents: write
     outputs:
       version: ${{ steps.bump-version.outputs.version }}
+      branchname: ${{ steps.bump-version.outputs.branchname }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -33,23 +34,23 @@ jobs:
         id: bump-version
         run: |
           poetry version ${{ github.event.inputs.version_bump }}
-          echo "version=$(poetry version --short)" >> $GITHUB_OUTPUT
+          version = $(poetry version --short)
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "branchname=release-${version}" >> $GITHUB_OUTPUT
       - name: Commit Version Bump
         run: |
-          branchname="release-${{ steps.bump-version.outputs.version }}"
           git config --local user.email "mkah91@users.noreply.github.com"
           git config --local user.name "mkah91"
-          git checkout -b ${branchname}
+          git checkout -b ${{ steps.bump-version.outputs.branchname }}
           git add pyproject.toml
           git commit -m "Bump version: ${{ steps.bump-version.outputs.version }}"
-          git push --set-upstream origin ${branchname}
+          git push --set-upstream origin ${{ steps.bump-version.outputs.branchname }}
+          git tag -a ${{ steps.bump-version.outputs.version }} -m "Release ${{ steps.bump-version.outputs.version }}"
           git push origin ${{ steps.bump-version.outputs.version }}
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
-        with:
-          title: "Bump version to '${{ steps.bump-version.outputs.version }}'"
-          body: |
-            Please merge this PR before creating the Release '${{ steps.bump-version.outputs.version }}'!
-          labels: |
-            ignore
-            ${{ github.event.inputs.version_bump }}
+        run: |
+          gh pr create \
+          --base main \
+          --head ${{ steps.bump-version.outputs.branchname }} \
+          --title "Bump version to ${{ steps.bump-version.outputs.version }}" \
+          --body "Created by GitHub Action"
