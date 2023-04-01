@@ -43,6 +43,7 @@ jobs:
           git add pyproject.toml
           git commit -m "Bump version: ${{ steps.bump-version.outputs.version }}"
           git push --set-upstream origin ${branchname}
+          git tag -a ${{ steps.bump-version.outputs.version }} -m "Release ${{ steps.bump-version.outputs.version }}"
           git push origin ${{ steps.bump-version.outputs.version }}
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
