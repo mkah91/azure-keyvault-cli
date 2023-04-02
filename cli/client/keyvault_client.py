@@ -96,3 +96,15 @@ class KeyVaultClient:
             raise SecretRequestError(e)
 
         return [Secret(s.name, s.expires_on) for s in secrets]
+
+    def set_secret(self, secret: Secret):
+        if not self.client:
+            raise ClientNotInitializedError("Client not initialized")
+        if not secret.name:
+            raise ValueError("Secret name cannot be empty")
+        if not secret.value:
+            raise ValueError("Secret value cannot be empty")
+        try:
+            self.client.set_secret(secret.name, secret.value)
+        except HttpResponseError as e:
+            raise SecretRequestError(e)
