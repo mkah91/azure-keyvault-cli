@@ -70,3 +70,38 @@ To lint the code, run:
 ```sh
 poetry run ruff .
 ```
+
+### Releasing
+
+#### Bump version
+
+First, bump the version in the `pyproject.toml` file. You can do this manually or by running:
+
+```sh
+poetry version <major|minor|patch>
+```
+
+Then commit the changes and push them to the remote repository. Additionally, add a tag to the commit with the new version number. You can do this by running:
+
+```sh
+version=$(poetry version --short)
+git checkout -b release-${version}
+git add pyproject.toml
+git commit -m "Bump version to ${version}"
+git push --set-upstream origin release-${version}
+git tag -a ${version} -m "Release ${version}"
+git push origin ${version}
+```
+
+#### Create pull request
+
+Create a pull request from the release branch to the main branch. The pull request will trigger the test workflow. The workflow will run the tests and check the formatting and linting of the code. You can create a pull request by running:
+
+```sh
+version=$(poetry version --short)
+gh pr create --title "Release ${version}" --body "Release ${version}" --base main --head release-${version}
+```
+
+#### Create release
+
+After the pull request has been merged, the release workflow will be triggered. The workflow will create a new release and publish the package to [PyPI](https://test.pypi.org/project/azure-keyvault-cli/).
