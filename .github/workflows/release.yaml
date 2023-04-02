@@ -40,3 +40,5 @@ jobs:
           --title ${{ steps.get-version.outputs.version }} \
           --generate-notes \
           --verify-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
