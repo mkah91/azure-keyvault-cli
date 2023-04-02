@@ -24,7 +24,7 @@ def edit_list(kv: KeyVaultClient, name: str = None):
         choice = inquirer.fuzzy(
             message="Select a secret to edit:",
             choices=secret_names,
-            default=None,
+            default=name,
         ).execute()
         if choice:
             edit_secret(kv, choice)
