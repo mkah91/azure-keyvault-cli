@@ -104,4 +104,4 @@ gh pr create --title "Release ${version}" --body "Release ${version}" --base mai
 
 #### Create release
 
-After the pull request has been merged, the release workflow will be triggered. The workflow will create a new release and publish the package to [PyPI](https://test.pypi.org/project/azure-keyvault-cli/).
+After the pull request has been merged, the release workflow will be triggered. The workflow will create a new release and publish the package to [PyPI](https://test.pypi.org/project/azure-keyvault-cli/). Be aware that this workflow needs to be manually approved before it will be executed.
