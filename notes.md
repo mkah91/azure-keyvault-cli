@@ -1,0 +1,1 @@
+poetry publish -r "test-pypi"  -u __token__ -p pypi-AgENdGVzdC5weXBpLm9yZwIkZTZjYmFlMTEtMmY3Zi00NDY4LTk2NjYtYWNmODVjMTA3MzRjAAIaWzEsWyJhenVyZS1rZXl2YXVsdC1jbGkiXV0AAixbMixbIjZkZWU4M2FmLTk4NTUtNDU3ZC05M2Q3LWFkOTAzMjkzMzFhZSJdXQAABiCCaYuR3xZ1_82ThOtYjgxbhk6X0NqFXMLZ98tZIxC-ZA --build
