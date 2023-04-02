@@ -70,8 +70,6 @@ To lint the code, run:
 ```sh
 poetry run ruff .
 ```
-=======
-```
 
 If you want to have it globally available, make sure to run it in your global python environment.
 
