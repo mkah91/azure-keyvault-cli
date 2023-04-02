@@ -21,13 +21,14 @@ def edit_list(kv: KeyVaultClient, name: str = None):
             sys.exit(0)
         if name in secret_names:
             edit_secret(kv, name)
-        choice = inquirer.fuzzy(
-            message="Select a secret to edit:",
-            choices=secret_names,
-            default=name,
-        ).execute()
-        if choice:
-            edit_secret(kv, choice)
+        else:
+            choice = inquirer.fuzzy(
+                message="Select a secret to edit:",
+                choices=secret_names,
+                default=name,
+            ).execute()
+            if choice:
+                edit_secret(kv, choice)
     except SecretRequestError as e:
         click.secho("Error listing the secrets!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
@@ -41,7 +42,7 @@ def edit_secret(kv: KeyVaultClient, name: str):
     try:
         secret = kv.get_secret(name)
         click.secho(f"Editing secret '{secret.name}':", fg="bright_blue")
-        click.secho(f"Value: {secret.value}", fg="blue")
+        click.secho(f"Value: {secret.value}", fg="bright_blue")
         user_input = click.edit(secret.value)
         if user_input is not None:
             new_secret: Secret = Secret(secret.name, secret.expires_on, user_input.strip())
