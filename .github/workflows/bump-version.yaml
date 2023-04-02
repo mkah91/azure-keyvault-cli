@@ -34,7 +34,7 @@ jobs:
         id: bump-version
         run: |
           poetry version ${{ github.event.inputs.version_bump }}
-          version = $(poetry version --short)
+          version=$(poetry version --short)
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "branchname=release-${version}" >> $GITHUB_OUTPUT
       - name: Commit Version Bump
@@ -54,3 +54,5 @@ jobs:
           --head ${{ steps.bump-version.outputs.branchname }} \
           --title "Bump version to ${{ steps.bump-version.outputs.version }}" \
           --body "Created by GitHub Action"
+        env:
+          GH_TOKEN: ${{ github.token }}
