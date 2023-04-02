@@ -54,7 +54,7 @@ def show(client, name):
 
 
 @azkv.command()
-@click.option("-n", "--name", help="The name of the secret")
+@click.argument("name", required=False)
 @click.pass_obj
 def edit(client, name):
     try:
