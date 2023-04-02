@@ -1,1 +1,0 @@
-poetry publish -r "test-pypi"  -u __token__ -p ***REMOVED*** --build
