@@ -34,7 +34,7 @@ jobs:
         id: bump-version
         run: |
           poetry version ${{ github.event.inputs.version_bump }}
-          version = $(poetry version --short)
+          version=$(poetry version --short)
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "branchname=release-${version}" >> $GITHUB_OUTPUT
       - name: Commit Version Bump
