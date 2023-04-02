@@ -10,12 +10,18 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: publish-to-pypi
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python - -y
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Get version
         id: get-version
         run: |
@@ -24,17 +30,13 @@ jobs:
         if: ${{ github.ref_type == 'tag' && (steps.get-version.outputs.version != github.ref_name) }}
         run: |
           exit 1
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python - -y
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Publish to PyPI
         run: |
           poetry install
           poetry publish -r "test-pypi" -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --build
       - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "dist/*"
-          tag: ${{ steps.bump-version.outputs.version }}
-          generateReleaseNotes: true
+        run: |
+          gh release create ${{ steps.get-version.outputs.version }} \
+          --title ${{ steps.get-version.outputs.version }} \
+          --generate-notes \
+          --verify-tag
