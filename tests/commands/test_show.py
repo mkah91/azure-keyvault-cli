@@ -44,6 +44,7 @@ def test_show_list_with_no_secrets(mocker, kv_client_mock, capsys):
     assert captured.out.strip() == "No secrets found."
     assert captured.err == ""
 
+
 def test_show_list_with_matching_secret(mocker, kv_client_mock):
     secret_mock_1 = mocker.MagicMock()
     secret_mock_1.name = "secret1"
