@@ -2,7 +2,6 @@ import sys
 
 import click
 import pyperclip  # type: ignore
-from InquirerPy import inquirer
 
 from cli.client.keyvault_client import (
     ClientNotInitializedError,
@@ -10,30 +9,13 @@ from cli.client.keyvault_client import (
     SecretNotFoundError,
     SecretRequestError,
 )
+from cli.client.keyvault_clients import KeyVaultClients
+from cli.commands.common import secret_selection
 
 
-def show_list(kv: KeyVaultClient, name: str = None):
-    try:
-        secrets = kv.get_secrets()
-        secret_names = [s.name for s in secrets]
-        if not secret_names:
-            click.secho("No secrets found.", fg="bright_white")
-            sys.exit(0)
-        if name in secret_names:
-            show_secret(kv, name)
-        else:
-            choice = inquirer.fuzzy(
-                message="Select a secret to show:", choices=secret_names, default=name
-            ).execute()
-            if choice:
-                show_secret(kv, choice)
-    except SecretRequestError as e:
-        click.secho("Error listing the secrets!", fg="bright_red", err=True)
-        click.secho(f"Error was:\n{e}", fg="red", err=True)
-        sys.exit(1)
-    except ClientNotInitializedError:
-        click.secho("Client not initialized!", fg="bright_red", err=True)
-        sys.exit(1)
+def show_list(vs: KeyVaultClients, name: str = None):
+    (vault_url, secret) = secret_selection(vs, name)
+    show_secret(vs.clients[vault_url], secret)
 
 
 def show_secret(kv: KeyVaultClient, name: str):

@@ -2,22 +2,52 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug azkv show",
+      "name": "azkv show",
       "type": "python",
       "request": "launch",
       "program": "cli/main.py",
       "console": "integratedTerminal",
+      "env": {
+        "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"
+      },
       "justMyCode": true,
       "args": ["show"]
     },
     {
-      "name": "Debug azkv check",
+      "name": "azkv check",
       "type": "python",
       "request": "launch",
       "program": "cli/main.py",
       "console": "integratedTerminal",
       "justMyCode": true,
       "args": ["check"]
+    },
+    {
+      "name": "azkv vaults add",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["vaults", "add"]
+    },
+    {
+      "name": "azkv vaults remove",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["vaults", "remove"]
+    },
+    {
+      "name": "azkv vaults list",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["vaults", "list"]
     }
   ]
 }
