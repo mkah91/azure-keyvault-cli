@@ -34,7 +34,10 @@ def secret_selection(vs: KeyVaultClients, name: str = None) -> Tuple[KeyVaultCli
                     vs,
                     keybindings=keybindings,
                     mandatory=False,
-                    instruction="(Use 'space' to toggle, 'enter' to save and 'left arrow' switch to secrets blade without saving)",
+                    instruction=(
+                        "(Use 'space' to toggle, 'enter' to save and "
+                        "'left arrow' switch to secrets blade without saving)"
+                    ),
                 )
             print(
                 CURSOR_UP_ONE + ERASE_LINE, end=""
