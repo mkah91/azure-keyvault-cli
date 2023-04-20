@@ -7,6 +7,7 @@ from cli.azkv import azkv as azkv_cmd
 from cli.client.keyvault_client import KeyVaultClient, KeyVaultClientSettings
 from cli.commands.check import check as check_cmd
 from cli.commands.edit import edit_list
+from cli.commands.find import find_secret
 from cli.commands.show import show_list
 
 pyproject_file = Path(__file__).parent.parent / "pyproject.toml"
@@ -37,6 +38,17 @@ def azkv(ctx, reset_vault_url, reset_login, reset):
 
         ctx.obj = client
         azkv_cmd(ctx)
+    except Exception as e:
+        click.secho("Unexpected error", fg="bright_red")
+        click.secho(f"Error was:\n{e}", fg="red")
+
+
+@azkv.command()
+@click.argument("name", required=True)
+@click.pass_obj
+def find(client, name):
+    try:
+        find_secret(client, name)
     except Exception as e:
         click.secho("Unexpected error", fg="bright_red")
         click.secho(f"Error was:\n{e}", fg="red")
