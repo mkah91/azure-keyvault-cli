@@ -58,7 +58,7 @@ class KeyVaultClient:
 
     def _auth(self) -> AuthenticationRecord:
         init_credential = InteractiveBrowserCredential(
-            cache_persistence_options=TokenCachePersistenceOptions()
+            cache_persistence_options=TokenCachePersistenceOptions(allow_unencrypted_storage=True)
         )
         record = init_credential.authenticate()
         record_json = record.serialize()

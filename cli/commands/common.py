@@ -1,63 +1,50 @@
-import sys
 from typing import Optional, Tuple
 from urllib.parse import urlparse
 
-import click
 from halo import Halo
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
+from InquirerPy.utils import InquirerPyKeybindings
 
-from cli.client.keyvault_client import (
-    ClientNotInitializedError,
-    KeyVaultClient,
-    SecretRequestError,
-)
+from cli.client.keyvault_client import KeyVaultClient
 from cli.client.keyvault_clients import KeyVaultClients
 
 CURSOR_UP_ONE = "\x1b[1A"
 ERASE_LINE = "\x1b[2K"
 
 
-def secret_selection(vs: KeyVaultClients, name: str = None) -> Tuple[KeyVaultClient, str]:
-    try:
-        choice = None
-        while not choice:
-            choice = secrets_blade(vs, name)
+def secret_selection(kvs: KeyVaultClients, name: str = None) -> Tuple[KeyVaultClient, str]:
+    choice = None
+    while not choice:
+        choice = secrets_blade(kvs, name)
+        if not choice:
             print(
                 CURSOR_UP_ONE + ERASE_LINE, end=""
             )  # erase the last line printed by the inquirer method
-            if not choice:
-                keybindings = {
-                    "skip": [{"key": "left"}],
-                }
-                vaults_blade(
-                    vs,
-                    keybindings=keybindings,
-                    mandatory=False,
-                    instruction=(
-                        "(Use 'space' to toggle, 'enter' to save and "
-                        "'left arrow' switch to secrets blade without saving)"
-                    ),
-                )
+            keybindings = {
+                "skip": [{"key": "left"}],
+            }
+            vaults_blade(
+                kvs,
+                keybindings=keybindings,
+                mandatory=False,
+                instruction=(
+                    "(Use 'space' to toggle, 'enter' to save and "
+                    "'left arrow' switch to secrets blade without saving)"
+                ),
+            )
             print(
                 CURSOR_UP_ONE + ERASE_LINE, end=""
             )  # erase the last line printed by the inquirer method
-        return choice
-    except SecretRequestError as e:
-        click.secho("Error listing the secrets!", fg="bright_red", err=True)
-        click.secho(f"Error was:\n{e}", fg="red", err=True)
-        sys.exit(1)
-    except ClientNotInitializedError:
-        click.secho("Client not initialized!", fg="bright_red", err=True)
-        sys.exit(1)
+    return choice
 
 
 def secrets_blade(
-    vs: KeyVaultClients, name: str = None
+    kvs: KeyVaultClients, name: str = None
 ) -> Tuple[Optional[KeyVaultClient], Optional[str]]:
     secret_names = []
     with Halo(text="Loading secrets", spinner="dots"):
-        secrets = vs.run_command("get_secrets")
+        secrets = kvs.run_command("get_secrets")
     for vault_url, secrets in secrets.items():
         for s in secrets:
             secret_names.append(
@@ -80,9 +67,14 @@ def secrets_blade(
     return choice
 
 
-def vaults_blade(clients, keybindings=None, mandatory=True, instruction=None):
+def vaults_blade(
+    kvs: KeyVaultClients,
+    keybindings: Optional[InquirerPyKeybindings] = None,
+    mandatory: bool = True,
+    instruction: str = "",
+):
     choices = []
-    for client in clients.clients.values():
+    for client in kvs.clients.values():
         choices.append(Choice(value=client.vault_url, enabled=client.is_active))
     active_vaults = inquirer.checkbox(
         message="Select active vaults:",
@@ -95,9 +87,9 @@ def vaults_blade(clients, keybindings=None, mandatory=True, instruction=None):
     ).execute()
     if not active_vaults:
         return
-    for key, vault in clients.clients.items():
+    for key, vault in kvs.clients.items():
         if key in active_vaults:
             vault.is_active = True
         else:
             vault.is_active = False
-    clients.save()
+    kvs.save()

@@ -13,9 +13,17 @@ from cli.client.keyvault_clients import KeyVaultClients
 from cli.commands.common import secret_selection
 
 
-def edit_list(vs: KeyVaultClients, name: str = None):
-    (kv, secret) = secret_selection(vs, name)
-    edit_secret(kv, secret)
+def edit_list(kvs: KeyVaultClients, name: str = None):
+    try:
+        (vault_url, secret) = secret_selection(kvs, name)
+        edit_secret(kvs.clients[vault_url], secret)
+    except SecretRequestError as e:
+        click.secho("Error listing the secrets!", fg="bright_red", err=True)
+        click.secho(f"Error was:\n{e}", fg="red", err=True)
+        sys.exit(1)
+    except ClientNotInitializedError:
+        click.secho("Client not initialized!", fg="bright_red", err=True)
+        sys.exit(1)
 
 
 def edit_secret(kv: KeyVaultClient, name: str):
@@ -35,9 +43,6 @@ def edit_secret(kv: KeyVaultClient, name: str):
     except SecretRequestError as e:
         click.secho("Error getting the secret!", fg="bright_red", err=True)
         click.secho(f"Error was:\n{e}", fg="red", err=True)
-        sys.exit(1)
-    except ClientNotInitializedError:
-        click.secho("Client not initialized!", fg="bright_red", err=True)
         sys.exit(1)
     except ClientNotInitializedError:
         click.secho("Client not initialized!", fg="bright_red", err=True)

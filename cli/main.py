@@ -27,11 +27,11 @@ def azkv(ctx, reset):
     try:
         azkv_cmd(ctx, reset)
     except ValueError:
-        click.secho("Resetting due to an invalid settings file", fg="bright_red")
-        click.secho("Please run 'azkv add' to add a new vault", fg="bright_red")
+        click.secho("Resetting due to an invalid settings file.", fg="bright_red")
+        click.secho("Please run 'azkv vaults add' to add a new vault.", fg="bright_red")
         click.echo()
         with click.get_current_context() as ctx:
-            click.echo(ctx.parent.get_help())
+            click.echo(ctx.get_help())
         sys.exit(1)
 
 
