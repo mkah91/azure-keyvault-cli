@@ -1,0 +1,54 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - labeled
+      - unlabeled
+      - ready_for_review
+      - reopened
+
+jobs:
+  basic-pr-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR has a valid release label
+        uses: actions/github-script@v6         
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const validLabels = [
+              "major",
+              "breaking",
+              "breaking-change",
+              "minor",
+              "feature",
+              "enhancement",
+              "patch",
+              "bugfix",
+              "bug",
+              "ignore-for-release",
+              "ignore"
+            ]
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            const labelNames = labels.data.map(label => label.name);
+            const matchingLabels = labelNames.filter(label => validLabels.includes(label));
+            if (matchingLabels && matchingLabels.length > 1) {
+              core.setFailed(`PR has more than one release label. You must only assign one of ${matchingLabels.join(", ")}`);
+              return
+            }
+            if (matchingLabels && matchingLabels.length === 0) {
+              core.setFailed(`PR has no release label, Valid labels are: ${validLabels.join(", ")}`);
+              return
+            }
+            if (matchingLabels && matchingLabels.length === 1) {
+              core.setOutput("success", "PR has a valid release label");
+              return
+            }
+            core.setFailed("Something went wrong")
