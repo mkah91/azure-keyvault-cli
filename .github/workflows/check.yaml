@@ -51,6 +51,7 @@ jobs:
       - name: Run unit tests
         run: poetry run pytest --cov=cli --cov-report=xml --cov-report=term-missing
       - name: Pytest coverage comment
+        if: github.event_name == 'pull_request'
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-xml-coverage-path: ./coverage.xml
