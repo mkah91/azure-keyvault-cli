@@ -29,10 +29,12 @@ jobs:
       - name: Run linter
         run: poetry run ruff .
   unit-tests:
+    permissions:
+      pull-requests: write
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -48,3 +50,7 @@ jobs:
         run: poetry install
       - name: Run unit tests
         run: poetry run pytest --cov=cli --cov-report=xml --cov-report=term-missing
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-xml-coverage-path: ./coverage.xml

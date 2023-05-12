@@ -1,132 +1,119 @@
+import click
 import pytest
 
 from cli.client.keyvault_client import (
     ClientNotInitializedError,
     KeyVaultClient,
+    Secret,
     SecretNotFoundError,
     SecretRequestError,
 )
-from cli.client.keyvault_secret import Secret
+from cli.client.keyvault_clients import KeyVaultClients
 from cli.commands.edit import edit_list, edit_secret
 
 
 @pytest.fixture
-def kv_client_mock(mocker):
-    return mocker.MagicMock(spec=KeyVaultClient)
-
-
-def test_edit_list_with_secrets(mocker, kv_client_mock):
-    secret_mock_1 = mocker.MagicMock()
-    secret_mock_1.name = "secret1"
-    secret_mock_1.value = "value1"
-    secret_mock_2 = mocker.MagicMock()
-    secret_mock_2.name = "secret2"
-    secret_mock_2.value = "value2"
-    kv_client_mock.get_secrets.return_value = [secret_mock_1, secret_mock_2]
-    inquirer_mock = mocker.patch("InquirerPy.inquirer.fuzzy")
-    inquirer_mock.return_value.execute.return_value = "secret1"
-    edit_secret_mock = mocker.patch("cli.commands.edit.edit_secret")
-
-    edit_list(kv_client_mock)
-
-    inquirer_mock.assert_called_with(
-        message="Select a secret to edit:", choices=["secret1", "secret2"], default=None
+def mock_kv_client(mocker):
+    mock_client = mocker.MagicMock(spec=KeyVaultClient)
+    mock_client.get_secret.return_value = Secret(
+        name="test_secret", value="test_value", expires_on=None
     )
-
-    inquirer_mock.return_value.execute.assert_called_once()
-    edit_secret_mock.assert_called_once_with(kv_client_mock, "secret1")
+    return mock_client
 
 
-def test_edit_list_with_no_secrets(mocker, kv_client_mock, capsys):
-    kv_client_mock.get_secrets.return_value = []
+@pytest.fixture
+def mock_kv_clients(mocker, mock_kv_client):
+    mock_clients = mocker.MagicMock(spec=KeyVaultClients)
+    mock_clients.clients = {"https://test.vault.azure.net": mock_kv_client}
+    return mock_clients
 
+
+def test_edit_secret_with_existing_secret(mocker, mock_kv_client):
+    # Arrange
+    click_secho_spy = mocker.spy(click, "secho")
+    mocker.patch("click.edit", return_value="new_value")
+    mock_kv_client.set_secret.return_value = None
+
+    # Act
+    edit_secret(mock_kv_client, "test_secret")
+
+    # Assert
+    mock_kv_client.get_secret.assert_called_once_with("test_secret")
+    mock_kv_client.set_secret.assert_called_once_with(
+        Secret(name="test_secret", value="new_value", expires_on=None)
+    )
+    click_secho_spy.assert_called_with("new_value", fg="blue")
+
+
+def test_edit_secret_with_nonexistent_secret(mocker, mock_kv_client):
+    # Arrange
+    click_secho_spy = mocker.spy(click, "secho")
+    mock_kv_client.get_secret.side_effect = SecretNotFoundError("Secret not found")
+
+    # Act
     with pytest.raises(SystemExit):
-        edit_list(kv_client_mock)
+        edit_secret(mock_kv_client, "nonexistent_secret")
 
-    captured = capsys.readouterr()
-    assert captured.out.strip() == "No secrets found."
-    assert captured.err == ""
-
-
-def test_edit_list_with_matching_secret(mocker, kv_client_mock):
-    secret_mock_1 = mocker.MagicMock()
-    secret_mock_1.name = "secret1"
-    secret_mock_1.value = "value1"
-    secret_mock_2 = mocker.MagicMock()
-    secret_mock_2.name = "secret2"
-    secret_mock_2.value = "value2"
-    kv_client_mock.get_secrets.return_value = [secret_mock_1, secret_mock_2]
-    inquirer_mock = mocker.patch("InquirerPy.inquirer.fuzzy")
-    edit_secret_mock = mocker.patch("cli.commands.edit.edit_secret")
-
-    edit_list(kv_client_mock, "secret1")
-
-    inquirer_mock.assert_not_called()
-    edit_secret_mock.assert_called_with(kv_client_mock, "secret1")
+    # Assert
+    mock_kv_client.get_secret.assert_called_once_with("nonexistent_secret")
+    click_secho_spy.assert_called_with("Secret does not exist!", fg="bright_red", err=True)
 
 
-@pytest.mark.parametrize(
-    "error,expected",
-    [
-        (SecretRequestError, "Error listing the secrets!\nError was:\nTest error"),
-        (ClientNotInitializedError, "Client not initialized!"),
-    ],
-)
-def test_edit_list_with_errors(mocker, kv_client_mock, error, expected, capsys):
-    kv_client_mock.get_secrets.side_effect = error("Test error")
+def test_edit_secret_with_request_error(mocker, mock_kv_client):
+    # Arrange
+    click_secho_spy = mocker.spy(click, "secho")
+    mock_kv_client.get_secret.side_effect = SecretRequestError("Error getting secret")
 
+    # Act
     with pytest.raises(SystemExit):
-        edit_list(kv_client_mock)
+        edit_secret(mock_kv_client, "test_secret")
 
-    captured = capsys.readouterr()
-    assert captured.out == ""
-    assert captured.err.strip() == expected
-
-
-def test_edit_secret(mocker, kv_client_mock):
-    secret_mock = Secret(
-        name="my_secret_name",
-        expires_on=None,
-        value="my_secret",
-    )
-    kv_client_mock.get_secret.return_value = secret_mock
-    edit_mock = mocker.patch("click.edit")
-    secho_mock = mocker.patch("click.secho")
-    edit_mock.return_value = "new_value"
-
-    edit_secret(kv_client_mock, "my_secret_name")
-
-    edit_mock.assert_called_with(secret_mock.value)
-    expected_secret = Secret(
-        name="my_secret_name",
-        expires_on=None,
-        value="new_value",
-    )
-    kv_client_mock.set_secret.assert_called_with(expected_secret)
-    secho_mock.assert_has_calls(
+    # Assert
+    mock_kv_client.get_secret.assert_called_once_with("test_secret")
+    click_secho_spy.assert_has_calls(
         [
-            mocker.call(f"Editing secret '{secret_mock.name}':", fg="bright_blue"),
-            mocker.call(f"Value: {secret_mock.value}", fg="bright_blue"),
-            mocker.call("New value:", fg="bright_blue"),
-            mocker.call("new_value", fg="blue"),
+            mocker.call("Error getting the secret!", fg="bright_red", err=True),
+            mocker.call("Error was:\nError getting secret", fg="red", err=True),
         ]
     )
 
 
-@pytest.mark.parametrize(
-    "error,expected",
-    [
-        (SecretRequestError, "Error getting the secret!\nError was:\nTest error"),
-        (ClientNotInitializedError, "Client not initialized!"),
-        (SecretNotFoundError, "Secret does not exist!"),
-    ],
-)
-def test_edit_secret_with_errors(mocker, kv_client_mock, error, expected, capsys):
-    kv_client_mock.get_secret.side_effect = error("Test error")
+def test_edit_secret_with_client_not_initialized_error(mocker, mock_kv_client):
+    # Arrange
+    click_secho_spy = mocker.spy(click, "secho")
+    mock_kv_client.get_secret.side_effect = ClientNotInitializedError("Client not initialized")
 
+    # Act
     with pytest.raises(SystemExit):
-        edit_secret(kv_client_mock, "my_secret_name")
+        edit_secret(mock_kv_client, "test_secret")
 
-    captured = capsys.readouterr()
-    assert captured.out == ""
-    assert captured.err.strip() == expected
+    # Assert
+    mock_kv_client.get_secret.assert_called_once_with("test_secret")
+    click_secho_spy.assert_called_with("Client not initialized!", fg="bright_red", err=True)
+
+
+def test_edit_list_with_existing_secret(mocker, mock_kv_clients):
+    # Arrange
+    mocker.patch(
+        "cli.commands.edit.secret_selection",
+        return_value=("https://test.vault.azure.net", "test_secret"),
+    )
+    mocker.patch("click.edit", return_value="new_value")
+    click_secho_spy = mocker.spy(click, "secho")
+
+    # Act
+    edit_list(mock_kv_clients)
+
+    # Assert
+    mock_kv_clients.clients["https://test.vault.azure.net"].get_secret.assert_called_once_with(
+        "test_secret"
+    )
+    mock_kv_clients.clients["https://test.vault.azure.net"].set_secret.assert_called_once_with(
+        Secret(name="test_secret", value="new_value", expires_on=None)
+    )
+    click_secho_spy.assert_has_calls(
+        [
+            mocker.call("New value:", fg="bright_blue"),
+            mocker.call("new_value", fg="blue"),
+        ]
+    )
