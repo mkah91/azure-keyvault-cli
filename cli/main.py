@@ -7,6 +7,7 @@ import toml  # type: ignore
 from cli.azkv import azkv as azkv_cmd
 from cli.commands.check import check as check_cmd
 from cli.commands.edit import edit_list
+from cli.commands.find import find_secret
 from cli.commands.show import show_list
 from cli.commands.vaults.main import add as vaults_add_cmd
 from cli.commands.vaults.main import login as vaults_login_cmd
@@ -44,6 +45,17 @@ vaults.add_command(vaults_add_cmd)
 vaults.add_command(vaults_select_cmd)
 vaults.add_command(vaults_login_cmd)
 vaults.add_command(vaults_remove_cmd)
+
+
+@azkv.command()
+@click.argument("name", required=True)
+@click.pass_obj
+def find(client, name):
+    try:
+        find_secret(client, name)
+    except Exception as e:
+        click.secho("Unexpected error", fg="bright_red")
+        click.secho(f"Error was:\n{e}", fg="red")
 
 
 @azkv.command()
