@@ -38,15 +38,21 @@ jobs:
         run: |
           echo "version=$(poetry version --short)" >> $GITHUB_OUTPUT
       - name: Check version
-        if: ${{ github.ref_type == 'tag' && (steps.get-version.outputs.version != github.ref_name) }}
+        if: github.ref_type == 'tag' && (steps.get-version.outputs.version != github.ref_name)
         run: |
           exit 1
       - name: Publish to PyPI
+        if: inputs.target == 'pypi' || github.ref_type == 'tag'
         run: |
           poetry install
-          poetry publish -r "${{ inputs.target  || 'pypi' }}" -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} --build
+          poetry publish -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} --build
+      - name: Publish to Test PyPI
+        if: inputs.target == 'test-pypi'
+        run: |
+          poetry install
+          poetry publish -r "test-pypi" -u __token__ -p ${{ secrets.TEST_PYPI_API_TOKEN }} --build
       - name: Create Release
-        if: ${{ github.ref_type == 'tag' || inputs.release == true }}
+        if: github.ref_type == 'tag' || inputs.release == true
         run: |
           gh release create ${{ steps.get-version.outputs.version }} \
           --title ${{ steps.get-version.outputs.version }} \
