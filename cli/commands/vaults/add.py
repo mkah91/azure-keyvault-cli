@@ -21,6 +21,8 @@ def add(clients, vault_url=None):
 def is_valid_url(url):
     try:
         url = url.strip('"').strip("'").strip()
+        if not url.startswith(("http://", "https://")):
+            raise Exception
         result = urlparse(url)
         return all([result.scheme, result.netloc])
     except Exception:

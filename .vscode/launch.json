@@ -53,13 +53,22 @@
       "args": ["vaults", "remove"]
     },
     {
-      "name": "azkv vaults list",
+      "name": "azkv vaults login",
       "type": "python",
       "request": "launch",
       "program": "cli/main.py",
       "console": "integratedTerminal",
       "justMyCode": true,
-      "args": ["vaults", "list"]
+      "args": ["vaults", "login"]
+    },
+    {
+      "name": "azkv vaults select",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["vaults", "select"]
     }
   ]
 }

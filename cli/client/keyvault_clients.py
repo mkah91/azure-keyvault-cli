@@ -31,12 +31,12 @@ class KeyVaultClients:
     def add_client(self, client: KeyVaultClient):
         if client.vault_url in self.clients:
             raise ValueError("Client already exists")
-        self.clients[client.vault_url] = client
+        self.clients[client.vault_url] = client  # type: ignore
         self.save()
 
     def remove_client(self, client: KeyVaultClient):
         try:
-            del self.clients[client.settings.vault_url]
+            del self.clients[client.vault_url]  # type: ignore
         except KeyError:
             pass
         self.save()
