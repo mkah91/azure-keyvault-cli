@@ -2,6 +2,18 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "azkv app",
+      "type": "python",
+      "request": "launch",
+      "program": "cli/main.py",
+      "console": "integratedTerminal",
+      "env": {
+        "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"
+      },
+      "justMyCode": true,
+      "args": ["app"]
+    },
+    {
       "name": "azkv show",
       "type": "python",
       "request": "launch",

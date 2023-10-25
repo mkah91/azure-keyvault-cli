@@ -5,6 +5,7 @@ import click
 import toml  # type: ignore
 
 from cli.azkv import azkv as azkv_cmd
+from cli.commands.app import AzkvApp
 from cli.commands.check import check as check_cmd
 from cli.commands.edit import edit_list
 from cli.commands.show import show_list
@@ -70,6 +71,12 @@ def edit(vaults, name):
 def check(vaults):
     """Check for expired secrets"""
     check_cmd(vaults)
+
+
+@azkv.command()
+def app():
+    azkv_app = AzkvApp()
+    azkv_app.run()
 
 
 if __name__ == "__main__":

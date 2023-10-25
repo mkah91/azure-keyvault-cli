@@ -1,0 +1,18 @@
+Tabs {
+    dock: top;
+}
+
+ListView {
+    width: 90%;
+    height: auto;
+    margin: 2 2;
+}
+
+Label {
+    height: 1;
+}
+
+SecretView>SecretViewItem {
+    height: 100%;
+    content-align: center middle;
+}
